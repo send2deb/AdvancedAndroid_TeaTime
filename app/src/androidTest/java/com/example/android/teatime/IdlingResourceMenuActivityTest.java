@@ -17,7 +17,9 @@
 package com.example.android.teatime;
 
 
+import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingResource;
+import android.support.test.espresso.base.IdlingResourceRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -26,6 +28,16 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.example.android.teatime.MenuActivityScreenTest.TEA_NAME;
+import static org.hamcrest.Matchers.anything;
+
 
 /**
  * Usually Espresso syncs all view operations with the UI thread as well as AsyncTasks, but it can't
@@ -55,6 +67,7 @@ public class IdlingResourceMenuActivityTest {
      * The activity will be terminated after the test and methods annotated with @After are
      * complete. This rule allows you to directly access the activity during the test.
      */
+
     @Rule
     public ActivityTestRule<MenuActivity> mActivityTestRule =
             new ActivityTestRule<>(MenuActivity.class);
@@ -62,22 +75,31 @@ public class IdlingResourceMenuActivityTest {
     private IdlingResource mIdlingResource;
 
 
-    // TODO (6) Registers any resource that needs to be synchronized with Espresso before
+    // Completed (6) Registers any resource that needs to be synchronized with Espresso before
     // the test is run.
     @Before
     public void registerIdlingResource() {
-
+        mIdlingResource = mActivityTestRule.getActivity().getmIdlingResource();
+//        IdlingRegistry.getInstance().register(mIdlingResource);
+        Espresso.registerIdlingResources(mIdlingResource);
     }
 
-    // TODO (7) Test that the gridView with Tea objects appears and we can click a gridView item
+    // Completed (7) Test that the gridView with Tea objects appears and we can click a gridView item
     @Test
     public void idlingResourceTest() {
+//        assertThat(true,true);
+        onData(anything()).inAdapterView(withId(R.id.tea_grid_view)).atPosition(1).perform(click());
 
+        // Checks that the OrderActivity opens with the correct tea name displayed
+        onView(withId(R.id.tea_name_text_view)).check(matches(withText(TEA_NAME)));
     }
 
-    // TODO (8) Unregister resources when not needed to avoid malfunction
+    // Completed (8) Unregister resources when not needed to avoid malfunction
     @After
     public void unregisterIdlingResource() {
-
+        if(mIdlingResource != null) {
+            Espresso.unregisterIdlingResources(mIdlingResource);
+//            IdlingRegistry.getInstance().unregister(mIdlingResource);
+        }
     }
 }
